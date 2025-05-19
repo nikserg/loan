@@ -1,0 +1,591 @@
+openapi: 3.0.0
+info:
+  title: 'Medication REST Api'
+  version: 1.0.0
+paths:
+  /api/clients:
+    get:
+      tags:
+        - Clients
+      summary: 'Get list of clients'
+      description: 'Returns list of clients'
+      operationId: getClientsList
+      parameters:
+        -
+          name: per_page
+          in: query
+          description: 'Number of items per page'
+          required: false
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Client' } }
+                type: object
+    post:
+      tags:
+        - Clients
+      summary: 'Store new client'
+      description: 'Creates a new client and returns the client data'
+      operationId: storeClient
+      requestBody:
+        description: 'Client data'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreClientRequest'
+      responses:
+        '201':
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { $ref: '#/components/schemas/Client' }
+                  message: { type: string, example: 'Client created successfully' }
+                type: object
+        '422':
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'The given data was invalid.' }
+                  errors: { type: object }
+                type: object
+  '/api/clients/{id}':
+    get:
+      tags:
+        - Clients
+      summary: 'Get client information'
+      description: 'Returns client data'
+      operationId: getClientById
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Client id'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { $ref: '#/components/schemas/Client' }
+                type: object
+        '404':
+          description: 'Client not found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Client not found' }
+                type: object
+    put:
+      tags:
+        - Clients
+      summary: 'Update existing client'
+      description: 'Updates a client and returns the updated data'
+      operationId: updateClient
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Client id'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: 'Client data'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClientRequest'
+      responses:
+        '200':
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { $ref: '#/components/schemas/Client' }
+                  message: { type: string, example: 'Client updated successfully' }
+                type: object
+        '404':
+          description: 'Client not found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Client not found' }
+                type: object
+        '422':
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'The given data was invalid.' }
+                  errors: { type: object }
+                type: object
+    delete:
+      tags:
+        - Clients
+      summary: 'Delete existing client'
+      description: 'Deletes a client and returns a confirmation message'
+      operationId: deleteClient
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Client id'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Client deleted successfully' }
+                type: object
+        '404':
+          description: 'Client not found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Client not found' }
+                type: object
+  /api/loans:
+    get:
+      tags:
+        - Loans
+      summary: 'Get list of loans'
+      description: 'Returns list of all loans'
+      operationId: getLoansList
+      parameters:
+        -
+          name: per_page
+          in: query
+          description: 'Number of items per page'
+          required: false
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Loan' } }
+                type: object
+  '/api/clients/{clientId}/loans':
+    get:
+      tags:
+        - Loans
+      summary: "Get client's loans"
+      description: 'Returns list of loans for a specific client'
+      operationId: getClientLoans
+      parameters:
+        -
+          name: clientId
+          in: path
+          description: 'Client id'
+          required: true
+          schema:
+            type: integer
+            format: int64
+        -
+          name: per_page
+          in: query
+          description: 'Number of items per page'
+          required: false
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Loan' } }
+                type: object
+    post:
+      tags:
+        - Loans
+      summary: 'Apply for a loan'
+      description: 'Process a loan application for a client'
+      operationId: applyForLoan
+      parameters:
+        -
+          name: clientId
+          in: path
+          description: 'Client id'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: 'Loan application data'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanApplicationRequest'
+      responses:
+        '201':
+          description: 'Loan approved'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { $ref: '#/components/schemas/Loan' }
+                  message: { type: string, example: 'Loan application approved' }
+                type: object
+        '422':
+          description: 'Loan application rejected'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Loan application rejected' }
+                  reasons: { type: array, items: { type: string }, example: ['Credit score must be greater than 500', 'Income must be at least $1000'] }
+                type: object
+  '/api/clients/{clientId}/eligibility':
+    get:
+      tags:
+        - Loans
+      summary: 'Check loan eligibility'
+      description: 'Check if a client is eligible for a loan without creating one'
+      operationId: checkLoanEligibility
+      parameters:
+        -
+          name: clientId
+          in: path
+          description: 'Client id'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 'Eligibility check result'
+          content:
+            application/json:
+              schema:
+                properties:
+                  eligible: { type: boolean, example: true }
+                  messages: { type: array, items: { type: string }, example: [] }
+                type: object
+        '404':
+          description: 'Client not found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Client not found' }
+                type: object
+  '/api/loans/{id}':
+    get:
+      tags:
+        - Loans
+      summary: 'Get loan information'
+      description: 'Returns loan data'
+      operationId: getLoanById
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Loan id'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { $ref: '#/components/schemas/Loan' }
+                type: object
+        '404':
+          description: 'Loan not found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Loan not found' }
+                type: object
+components:
+  schemas:
+    LoanApplicationRequest:
+      title: 'Loan Application Request'
+      description: 'Request for applying for a loan'
+      required:
+        - name
+        - amount
+        - rate
+      properties:
+        name:
+          description: 'Loan name/type'
+          type: string
+          example: 'Personal Loan'
+        amount:
+          description: 'Loan amount in USD'
+          type: number
+          format: float
+          example: 1000
+        rate:
+          description: 'Interest rate percentage'
+          type: number
+          format: float
+          example: 10
+        start_date:
+          description: 'Loan start date (optional, defaults to current date)'
+          type: string
+          format: date
+          example: '2024-01-01'
+        end_date:
+          description: 'Loan end date (optional, defaults to one year after start date)'
+          type: string
+          format: date
+          example: '2024-12-31'
+      type: object
+    StoreClientRequest:
+      title: 'Store Client Request'
+      description: 'Request for creating a new client'
+      required:
+        - name
+        - age
+        - city
+        - region
+        - income
+        - score
+        - pin
+        - email
+        - phone
+      properties:
+        name:
+          description: 'Client name'
+          type: string
+          example: 'Petr Pavel'
+        age:
+          description: 'Client age'
+          type: integer
+          example: 35
+        city:
+          description: 'Client city'
+          type: string
+          example: Prague
+        region:
+          description: 'Client region code (2 characters)'
+          type: string
+          example: PR
+        income:
+          description: 'Client monthly income in USD'
+          type: number
+          format: float
+          example: 1500
+        score:
+          description: 'Client credit score'
+          type: integer
+          example: 600
+        pin:
+          description: 'Client personal identification number (must be unique)'
+          type: string
+          example: 123-45-6789
+        email:
+          description: 'Client email address (must be unique)'
+          type: string
+          format: email
+          example: petr.pavel@example.com
+        phone:
+          description: 'Client phone number'
+          type: string
+          example: '+420123456789'
+      type: object
+    UpdateClientRequest:
+      title: 'Update Client Request'
+      description: 'Request for updating an existing client'
+      properties:
+        name:
+          description: 'Client name'
+          type: string
+          example: 'Petr Pavel'
+        age:
+          description: 'Client age'
+          type: integer
+          example: 35
+        city:
+          description: 'Client city'
+          type: string
+          example: Prague
+        region:
+          description: 'Client region code (2 characters)'
+          type: string
+          example: PR
+        income:
+          description: 'Client monthly income in USD'
+          type: number
+          format: float
+          example: 1500
+        score:
+          description: 'Client credit score'
+          type: integer
+          example: 600
+        pin:
+          description: 'Client personal identification number (must be unique)'
+          type: string
+          example: 123-45-6789
+        email:
+          description: 'Client email address (must be unique)'
+          type: string
+          format: email
+          example: petr.pavel@example.com
+        phone:
+          description: 'Client phone number'
+          type: string
+          example: '+420123456789'
+      type: object
+    Client:
+      title: Client
+      description: 'Client model'
+      properties:
+        id:
+          description: 'Client ID'
+          type: integer
+          format: int64
+          example: 1
+        name:
+          description: 'Client name'
+          type: string
+          example: 'Petr Pavel'
+        age:
+          description: 'Client age'
+          type: integer
+          example: 35
+        city:
+          description: 'Client city'
+          type: string
+          example: Prague
+        region:
+          description: 'Client region code'
+          type: string
+          example: PR
+        income:
+          description: 'Client monthly income in USD'
+          type: number
+          format: float
+          example: 1500
+        score:
+          description: 'Client credit score'
+          type: integer
+          example: 600
+        pin:
+          description: 'Client personal identification number'
+          type: string
+          example: 123-45-6789
+        email:
+          description: 'Client email address'
+          type: string
+          format: email
+          example: petr.pavel@example.com
+        phone:
+          description: 'Client phone number'
+          type: string
+          example: '+420123456789'
+        created_at:
+          description: 'Creation timestamp'
+          type: string
+          format: date-time
+        updated_at:
+          description: 'Last update timestamp'
+          type: string
+          format: date-time
+      type: object
+    Loan:
+      title: Loan
+      description: 'Loan model'
+      properties:
+        id:
+          description: 'Loan ID'
+          type: integer
+          format: int64
+          example: 1
+        client_id:
+          description: 'Client ID'
+          type: integer
+          format: int64
+          example: 1
+        name:
+          description: 'Loan name/type'
+          type: string
+          example: 'Personal Loan'
+        amount:
+          description: 'Loan amount in USD'
+          type: number
+          format: float
+          example: 1000
+        rate:
+          description: 'Interest rate percentage'
+          type: number
+          format: float
+          example: 10
+        start_date:
+          description: 'Loan start date'
+          type: string
+          format: date
+          example: '2024-01-01'
+        end_date:
+          description: 'Loan end date'
+          type: string
+          format: date
+          example: '2024-12-31'
+        status:
+          description: 'Loan status'
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+          example: approved
+        created_at:
+          description: 'Creation timestamp'
+          type: string
+          format: date-time
+        updated_at:
+          description: 'Last update timestamp'
+          type: string
+          format: date-time
+      type: object
+tags:
+  -
+    name: Clients
+    description: 'API Endpoints for client management'
+  -
+    name: Loans
+    description: 'API Endpoints for loan management'
